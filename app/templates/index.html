@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Keras</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+<body style="">
+
+  <nav class="navbar navbar-expand-md bg-dark navbar-dark" style="margin-bottom:45px;" >
+    <a class="navbar-brand" href="#">Control</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="navbar-nav">
+
+      </ul>
+    </div>
+  </nav>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <h3 style="color:#007bff;">Select image to predict</h3>
+      <input id="image-selector" type="file"/>
+      <br/><br/>
+      <button id="predict-button"> Predict </button>
+      <br/><br/><br/><br/><br/> 
+      <div>
+      <img id="selected-image" src="" />
+      </div>
+      
+    </div>
+
+    <div class="col-md-6">
+      <h3 style="color:#007bff;"> Predictions </h3>
+      <p>good part: <span id="class1"></span></p>
+      <p>seeds: <span id="class2"></span></p>
+      <p>paint run: <span id="class3"></span></p>
+      <p>scratch: <span id="class4"></span></p>
+
+    </div>
+  </div>
+</div>
+<script>
+  let base64Image;
+  $("#image-selector").change(function(){
+    let reader = new FileReader();
+    reader.onload = function(e){
+      let dataURL = reader.result;
+      $("#selected-image").attr("src",dataURL);
+      base64Image = dataURL.replace("data:Image/png;base64,", "");
+    }
+    reader.readAsDataURL($("#image-selector")[0].files[0]);
+    //clear previous predictions if any
+    $("#class1").text("");
+    $("#class2").text("");
+    $("#class3").text("");
+    $("#class4").text("");
+  });
+
+  $("#predict-button").click(function(event){
+    let message = {
+      image: base64Image
+    }
+    $.post(window.location.origin + "/locate-defects", JSON.stringify(message), function(response){
+      console.log(response);
+      $("#class1").text(response.Resp.raw[0][0]);
+      $("#class2").text(response.Resp.raw[0][1]);
+      $("#class3").text(response.Resp.raw[0][2]);
+      $("#class4").text(response.Resp.raw[0][3]);
+    });
+  })
+</script>
+
+</body>
+</html>
